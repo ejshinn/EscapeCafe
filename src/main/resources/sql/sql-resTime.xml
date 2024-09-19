@@ -31,12 +31,25 @@
             res_id = #{resId}
     </select>
 
-    <update id="updateReviewStatus" parameterType="int">
+    <update id="updateReviewStatusY" parameterType="int">
         UPDATE
             reservation
         SET
             review_yn = 'Y'
         WHERE
             res_id = #{resId}
+    </update>
+
+    <update id="updateReviewStatusN" parameterType="int">
+        UPDATE
+            reservation r
+        SET
+            r.review_yn = 'N'
+        WHERE
+            r.res_id = (
+                SELECT c.res_id
+                FROM communication c
+                WHERE c.board_idx = #{board_idx}
+            );
     </update>
 </mapper>

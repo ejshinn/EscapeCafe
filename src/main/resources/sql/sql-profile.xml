@@ -27,11 +27,11 @@
 <!--    유저 정보 수정 하기    -->
     <update id="selectProfileUpdate" parameterType="bitc.fullstack405.team2.profile.ProfileDTO">
         UPDATE
-        user
+            user
         SET
-        user_pw = #{userPw}, email = #{email}, mobile_number = #{mobileNumber}, nickname = #{nickName}
+            user_pw = #{userPw}, email = #{email}, mobile_number = #{mobileNumber}, nickname = #{nickName}
         WHERE
-        user_id = #{userId}
+            user_id = #{userId}
     </update>
 
 <!--    유저 예약 현황 리스트    -->

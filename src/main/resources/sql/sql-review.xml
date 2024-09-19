@@ -54,6 +54,17 @@
             c.board_idx DESC
     </select>
 
+    <select id="findBoardIdxByResId" parameterType="int" resultType="int">
+        SELECT
+            board_idx
+        FROM
+            communication
+        WHERE
+            res_id = #{res_id}
+        AND
+            deleted_yn = 'N'
+    </select>
+
     <!-- review 게시글 등록 -->
     <insert id="insertReview" parameterType="bitc.fullstack405.team2.review.ReviewDTO">
         INSERT INTO communication
@@ -71,8 +82,6 @@
         WHERE
             board_idx = ${boardIdx}
     </delete>
-
-<!--    게시글 삭제하면 reservation 테이블의 review_yn도 n으로 바꿔야 함-->
 
     <!-- review 게시글 수정 -->
     <update id="updateReview" parameterType="bitc.fullstack405.team2.review.ReviewDTO">
