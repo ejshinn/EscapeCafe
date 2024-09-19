@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="bitc.fullstack405.team2.profile.ProfileMapper">
+<!--    유저 정보 기본 보기    -->
+    <select id="selectProfile" resultType="bitc.fullstack405.team2.profile.ProfileDTO">
+        SELECT
+            user_id, user_pw, user_name, email, gender, age, mobile_number, nickname, point
+        FROM
+            user
+        WHERE
+            user_id = #{userId}
+    </select>
+
+<!--    유저 정보 상세 보기    -->
+    <select id="selectProfileDetail" resultType="bitc.fullstack405.team2.profile.ProfileDTO" parameterType="String">
+        SELECT
+            user_id, user_pw, user_name, email, gender, age, mobile_number, nickname, point
+        FROM
+            user
+        WHERE
+            user_id = #{userId}
+    </select>
+
+<!--    유저 정보 수정 하기    -->
+    <update id="selectProfileUpdate" parameterType="bitc.fullstack405.team2.profile.ProfileDTO">
+        UPDATE
+        user
+        SET
+        user_pw = #{userPw}, email = #{email}, mobile_number = #{mobileNumber}, nickname = #{nickName}
+        WHERE
+        user_id = #{userId}
+    </update>
+
+<!--    유저 예약 현황 리스트    -->
+    <select id="selectProfileList" parameterType="String" resultType="bitc.fullstack405.team2.profile.ProfileDTO">
+        SELECT
+            res_id, res_time, reservation_date, state, createdAt, cafe_id, user_id, theme_id, cafe_name, theme_title
+        FROM
+            reservation
+        WHERE
+            user_id = #{userId}
+    </select>
+
+<!--    유저 예약 현황(현재)    -->
+    <select id="selectProfileRv" parameterType="String" resultType="bitc.fullstack405.team2.profile.ProfileDTO">
+        SELECT
+            res_id, res_time, reservation_date, state, createdAt, cafe_id, user_id, theme_id, cafe_name, theme_title, serial_num
+        FROM
+            reservation
+        WHERE
+            user_id = #{userId}
+        ANd
+            state = 'T'
+        AND
+            reservation_date >= CURDATE()
+        ORDER BY res_id desc
+    </select>
+
+<!--    유저 예약 현황(과거)    -->
+    <select id="selectProfileOverRv" parameterType="String" resultType="bitc.fullstack405.team2.profile.ProfileDTO">
+        SELECT
+            res_id, res_time, reservation_date, state, createdAt, cafe_id, user_id, theme_id, cafe_name, theme_title, serial_num, review_yn
+        FROM
+            reservation
+        WHERE
+            user_id = #{userId}
+        ANd
+            state = 'T'
+        AND
+            reservation_date &lt; CURDATE()
+    </select>
+
+</mapper>

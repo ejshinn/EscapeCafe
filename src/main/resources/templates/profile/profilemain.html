@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Title</title>
+
+    <link rel="stylesheet" href="/css/bootstrap.css">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+</head>
+<body>
+
+<header th:replace="~{layout/header.html :: header}"></header>
+
+<section id="profile" class="container mt-5">
+    <h1 class="text-center">MY PAGE</h1>
+    <div>
+        <h3 class="text-center">계정 정보</h3>
+        <div class="text-center">
+        </div>
+    <div class="row mt-3 d-flex justify-content-center">
+        <div class="col-sm-4">
+            <form action="profilemain.html">
+                <div class="form-floating">
+                    <input type="text" class="form-control" id="username" name="userName" placeholder="이름" readonly>
+                    <label for="username" th:text="${profile.userName}">이름</label>
+                </div>
+                <div class="form-floating">
+                    <input type="text" class="form-control" id="usernickname" name="userId" placeholder="닉네임" readonly>
+                    <label for="usernickname" th:text="${profile.nickName}">닉네임</label>
+                </div>
+                <div class="form-floating">
+                    <input type="text" class="form-control" id="userpoint" name="point" placeholder="포인트" readonly>
+                    <label for="userpoint" class="form-label" th:text="${profile.point}">포인트</label>
+                </div>
+            </form>
+        </div>
+    </div>
+    </div>
+    <div>
+        <a href="profiledetail" class="d-grid gap-2 col-3 mx-auto mt-3">
+            <button type="button" class="btn btn-primary">상세보기</button>
+        </a>
+    </div>
+</section>
+<section id="profile-reservation" class="container mt-5">
+    <h1></h1>
+    <div class="accordion accordion-flush" id="accordion_reservation">
+        <h3 class="text-center">예약현황</h3>
+        <div class="row">
+            <div class="col-sm">
+                <table class="table table-hover table-striped">
+                    <colgroup>
+                        <col style="width: 20%">
+                        <col style="width: 25%">
+                        <col style="width: 25%">
+                        <col style="width: 10%">
+                        <col style="width: 20%">
+                    </colgroup>
+                    <thead>
+                    <tr>
+                        <th>예약번호</th>
+                        <th>지점명</th>
+                        <th>테마명</th>
+                        <th>예약시간</th>
+                        <th>예약날짜</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:if="${#lists.size(profileRv)}>0" th:each="itemRv:${profileRv}">
+                        <td th:text="${itemRv.serialNum}">기본 예약번호</td>
+                        <td th:text="${itemRv.cafeName}">기본 지점명</td>
+                        <td th:text="${itemRv.themeTitle}">기본 테마명</td>
+                        <td th:text="${itemRv.resTime}">예약시간</td>
+                        <td th:text="${itemRv.reservationDate}">기본 예약날짜</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="accordion accordion-flush mt-5" id="accordion_over_reservation">
+        <h3 class="text-center">예약현황(과거)</h3>
+        <div class="accordion-item">
+            <h4 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#over-flush-collapseOne" aria-expanded="false" aria-controls="over-flush-collapseOne">
+                    펼쳐보기
+                </button>
+            </h4>
+            <div id="over-flush-collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
+                <div class="accordion-body">
+                    <div class="row mb-2" th:if="${#lists.size(profileOverRv)} > 0" th:each="itemOver:${profileOverRv}" >
+                        <div class="col" th:text="${itemOver.cafeName}">지점명</div>
+                        <div class="col" th:text="${itemOver.themeTitle}">테마명</div>
+                        <div class="col" th:text="${itemOver.reservationDate}">예약날짜</div>
+                        <div class="col" th:text="${itemOver.resTime}">예약시간</div>
+                        <div class="col" th:style="${itemOver.reviewYn == 'Y'} ? 'visibility: hidden;'">
+                            <a href="#" th:href="@{|/review/write/${itemOver.resId}|}">
+                                <button type="button" class="btn btn-primary">후기 쓰기</button>
+                            </a>
+                        </div>
+<!--                        <div class="col" th:style="${itemOver.reviewYn == 'Y'} ? 'display: none;'">-->
+<!--                            <a href="#" th:href="@{|/review/write/${itemOver.resId}|}">-->
+<!--                                <button type="button" class="btn btn-primary">후기 쓰기</button>-->
+<!--                            </a>-->
+<!--                        </div>-->
+<!--                        <div class="col" th:style="${itemOver.reviewYn == 'N'} ? 'display: none;'">-->
+<!--                            <a href="#" th:href="@{|/review/${itemOver.}|}">-->
+<!--                                <button type="button" class="btn btn-primary">후기 보기</button>-->
+<!--                            </a>-->
+<!--                        </div>-->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer th:replace="~{/layout/footer :: footer}"></footer>
+
+</body>
+</html>
+
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>

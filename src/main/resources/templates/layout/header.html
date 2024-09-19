@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <header th:fragment="header">
+    <nav class="navbar navbar-expand navbar-light bg-light container-fluid fixed-top justify-content-between">
+        <div>
+            <a class="navbar-brand ms-3" href="/main" target="_self">
+                <img src="https://xdungeon.net/layout/images/common/logo.png">
+            </a>
+        </div>
+        <!-- 네비게이션 메뉴 -->
+
+        <div>
+            <ul class="navbar-nav me-3">
+
+                <!-- 메뉴 1 -->
+                <!--예약안내, 예약확인 옵션 삭제-->
+                <li class="nav-item">
+                    <a class="nav-link" href="/reservation/hongdae/1" >RESERVATION</a>
+                </li>
+
+                <!-- 메뉴 2 -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
+                       aria-expanded="false">
+                        NOTICE
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <li>
+                            <a class="dropdown-item" href="/notice">NOTICE</a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="/notice/FAQ">FAQ</a>
+                        </li>
+                    </ul>
+                </li>
+
+                <!-- 메뉴 3 -->
+                <li class="nav-item">
+                    <a class="nav-link" href="/review" >REVIEW</a>
+                </li>
+                <!-- 메뉴 4 -->
+                <li class="nav-item">
+                    <a class="nav-link" href="/locationMain" target="_self">LOCATION</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/profile" target="_self">MYPAGE</a>
+                </li>
+                <li class="nav-item" th:if="${session.userId} == null">
+                    <a href="#" class="nav-link" th:href="@{/user/login}">로그인</a>
+                </li>
+                <li class="nav-item" th:unless="${session.userId} == null">
+                    <a href="#" class="nav-link" id="btn-logout">로그아웃</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <script>
+        $("#btn-logout").on("click", function () {
+            const confirmed = confirm("로그아웃 하시겠습니까?");
+
+            if (confirmed) {
+                location.href = "/user/logout";
+            }
+        });
+    </script>
+</header>
+</body>
+</html>

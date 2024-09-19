@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>예약하기(강남)</title>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+            crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+
+    <style>
+        /*strong {*/
+        /*    border: 1px solid black;*/
+        /*}*/
+
+        #res1 {
+            border: 1px solid black;
+        }
+
+        #all {
+            border: 1px solid black;
+        }
+        /*#container{*/
+        /*    margin-top: 100px;*/
+        /*    border: 1px solid black;*/
+        /*}*/
+
+        .list-group-btn {
+            background-color: white;
+
+            border: none;
+            width: 100%;
+            text-align: center;
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .list-group-btn a {
+            text-decoration: none;
+            color: black;
+        }
+
+        .list-group-btn:hover {
+            background-color: orange;
+        }
+
+        .time-link {
+            color: black;
+            text-decoration: none;
+        }
+
+        .time-link:hover {
+            background-color: orange;
+        }
+
+        .list-group-item {
+            padding: 0;
+        }
+
+        .flex-column {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .list-unstyled {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .timebtn a{
+
+            /* 두께 선종류 색깔*/
+            border:1px solid orange;
+            /*border-style:solid;*/
+            border-radius: 10px;
+            /*border-color: #6ea8fe;*/
+            padding: 10px 20px 10px 20px ;
+            /*padding : T R B L;*/
+            /*color: #6c757d;*/
+            text-decoration: none;
+            color: black;
+        }
+        .timebtn a:hover{
+            background-color: orange;
+            color : white;
+        }
+
+        .location-btn a{
+            /* 두께 선종류 색깔*/
+            border:1px solid orange;
+            border-radius: 10px;
+            /*border-color: #6ea8fe;*/
+            padding: 10px 50px 10px 50px ;
+            /*padding : T R B L;*/
+            /*color: #6c757d;*/
+            text-decoration: none;
+            color: black;
+        }
+        .location-btn a:hover{
+            background-color: orange;
+            color : white;
+        }
+
+        #quickmenu2 {
+            width: 50px;
+            height: 50px;
+            position: fixed;
+            right: 0;
+            top: 90%;
+            transform: translateX(-85%) translateY(-50%);
+            border-radius: 50px;
+            background-color: orange;
+            text-align: center;
+            text-decoration: none;
+            padding-top: 10px;
+            color: white;
+        }
+
+    </style>
+
+    <style>
+        .do-hyeon-regular {
+            font-family: "Do Hyeon", sans-serif;
+            font-weight: 400;
+            font-style: normal;
+        }
+        .gothic-a1-regular {
+            font-family: "Gothic A1", sans-serif;
+            font-weight: 600;
+            font-style: normal;
+        }
+
+    </style>
+
+
+    <script>
+        $(document).ready(function (){
+
+            let now = new Date(); // 현재 날짜 및 시간
+            let nowHour = now.getHours(); // 시
+
+            // 현재 주소에서 date 값 가져오기
+            let url = document.location.href;
+            let searchParam = new URL(url).searchParams;
+            let dateParam = searchParam.get("date")
+            console.log(dateParam);
+
+            // 오늘 날짜말고 선택한 날짜 value에 넣음
+            document.getElementById('date').value=dateParam;
+
+            // // 일단 오늘 날짜 넣고
+            // document.getElementById('date').value = now.toISOString().substring(0, 10);
+            // // 날짜 선택 버튼 누르면 주소에 있는 날짜로 바뀌게 해보자 ?
+            // $("#date-select").on("click", function(){
+            //     // 오늘 날짜말고 선택한 날짜 value에 넣음
+            //     document.getElementById('date').value=dateParam;
+            // });
+
+            // date 태그의 최솟값을 오늘로 지정, 오늘 이전 날짜 선택 못함
+            document.getElementById('date').min = now.toISOString().substring(0,10);
+            // 오늘 기준 1주일만 선택 가능
+            now.setDate(now.getDate()+6);
+            document.getElementById('date').max= now.toISOString().substring(0,10);
+
+
+
+            // 오늘 날짜 가져오기
+            function getToday(){
+                let today = new Date();
+                return today.getFullYear() + "-" + ("0"+(today.getMonth()+1)).slice(-2)+"-"+("0"+today.getDate()).slice(-2);
+            }
+
+            //1번 버튼 테마 시간 저장
+            let theme1part1 = document.getElementById("theme1part1").getAttribute('data-value');
+            let theme1part2 = document.getElementById("theme1part2").getAttribute('data-value');
+            let theme1part3 = document.getElementById("theme1part3").getAttribute('data-value');
+
+            // 2번 ㅂㅌ 테마 시간 저장
+            let theme2part1 = document.getElementById("theme2part1").getAttribute('data-value');
+            let theme2part2 = document.getElementById("theme2part2").getAttribute('data-value');
+            let theme2part3 = document.getElementById("theme2part3").getAttribute('data-value');
+
+            // 3번 ㅂㅌ 테마 시간 지정
+            let theme3part1 = document.getElementById("theme3part1").getAttribute('data-value');
+            let theme3part2 = document.getElementById("theme3part2").getAttribute('data-value');
+            let theme3part3 = document.getElementById("theme3part3").getAttribute('data-value');
+
+
+            // 4번 ㅂㅌ 테마 시간 지정
+            let theme4part1 = document.getElementById("theme4part1").getAttribute('data-value');
+            let theme4part2 = document.getElementById("theme4part2").getAttribute('data-value');
+            let theme4part3 = document.getElementById("theme4part3").getAttribute('data-value');
+
+
+            // 1번테마 시간 선택 시 날짜 정보 가지고 이동
+            $("#theme1part1").click(function (){
+                document.getElementById("theme1part1").setAttribute("href","/reservation/gangnam/2/5/10/"+dateParam);
+            });
+            $("#theme1part2").click(function (){
+                document.getElementById("theme1part2").setAttribute("href","/reservation/gangnam/2/5/15/"+dateParam);
+            });
+            $("#theme1part3").click(function (){
+                document.getElementById("theme1part3").setAttribute("href","/reservation/gangnam/2/5/20/"+dateParam);
+            });
+
+            // 2번테마 시간 선택 시 날짜 정보 가지고 이동
+            $("#theme2part1").click(function (){
+                document.getElementById("theme2part1").setAttribute("href","/reservation/gangnam/2/6/10/"+dateParam);
+            });
+            $("#theme2part2").click(function (){
+                document.getElementById("theme2part2").setAttribute("href","/reservation/gangnam/2/6/15/"+dateParam);
+            });
+            $("#theme2part3").click(function (){
+                document.getElementById("theme2part3").setAttribute("href","/reservation/gangnam/2/6/20/"+dateParam);
+            });
+
+            // 3번테마 시간 선택 시 날짜 정보 가지고 이동
+            $("#theme3part1").click(function (){
+                document.getElementById("theme3part1").setAttribute("href","/reservation/gangnam/2/7/10/"+dateParam);
+            });
+            $("#theme3part2").click(function (){
+                document.getElementById("theme3part2").setAttribute("href","/reservation/gangnam/2/7/15/"+dateParam);
+            });
+            $("#theme3part3").click(function (){
+                document.getElementById("theme3part3").setAttribute("href","/reservation/gangnam/2/7/20/"+dateParam);
+            });
+
+            // 4번테마 시간 선택 시 날짜 정보 가지고 이동
+            $("#theme4part1").click(function (){
+                document.getElementById("theme4part1").setAttribute("href","/reservation/gangnam/2/8/10/"+dateParam);
+            });
+            $("#theme4part2").click(function (){
+                document.getElementById("theme4part2").setAttribute("href","/reservation/gangnam/2/8/15/"+dateParam);
+            });
+            $("#theme4part3").click(function (){
+                document.getElementById("theme4part3").setAttribute("href","/reservation/gangnam/2/8/20/"+dateParam);
+            });
+
+
+            let today = getToday();
+            console.log(today);
+
+            // 주소에 있는 값이 오늘 날짜이면 시간 자동 비활성화
+            if(dateParam == today){
+
+                // 1번 테마 시간 비활성화
+                if (nowHour >= theme1part1) {
+                    // a 태그 사용 시 비활성화
+                    $("#theme1part1").off("click");
+                    document.querySelector("#theme1part1").removeAttribute('href');
+                    $("#theme1part1").css("background-color", "#D3D3D3");
+
+                    // 버튼 태그 사용 시 비활성화
+                    // $("#part1").attr("disabled",true);
+                }
+                if (nowHour >= theme1part2) {
+                    $("#theme1part2").off("click");
+                    document.querySelector("#theme1part2").removeAttribute('href');
+                    $("#theme1part2").css("background-color", "#D3D3D3");
+                }
+                if (nowHour >= theme1part3) {
+                    $("#theme1part3").off("click");
+                    document.querySelector("#theme1part3").removeAttribute('href');
+                    $("#theme1part3").css("background-color", "#D3D3D3");
+                }
+
+                // 2번 테마 시간 비활성화
+                if (nowHour >= theme2part1) {
+                    $("#theme2part1").off("click");
+                    document.querySelector("#theme2part1").removeAttribute('href');
+                    $("#theme2part1").css("background-color", "#D3D3D3");
+                }
+                if (nowHour >= theme2part2) {
+                    $("#theme2part2").off("click");
+                    document.querySelector("#theme2part2").removeAttribute('href');
+                    $("#theme2part2").css("background-color", "#D3D3D3");
+                }
+                if (nowHour >= theme2part3) {
+                    $("#theme2part3").off("click");
+                    document.querySelector("#theme2part3").removeAttribute('href');
+                    $("#theme2part3").css("background-color", "#D3D3D3");
+                }
+
+
+                // 3번 테마 시간 비활성화
+                if (nowHour >= theme3part1) {
+                    $("#theme3part1").off("click");
+                    document.querySelector("#theme3part1").removeAttribute('href');
+                    $("#theme3part1").css("background-color", "#D3D3D3");
+                }
+                if (nowHour >= theme3part2) {
+                    $("#theme3part2").off("click");
+                    document.querySelector("#theme3part2").removeAttribute('href');
+                    $("#theme3part2").css("background-color", "#D3D3D3");
+                }
+                if (nowHour >= theme3part3) {
+                    $("#theme3part3").off("click");
+                    document.querySelector("#theme3part3").removeAttribute('href');
+                    $("#theme3part3").css("background-color", "#D3D3D3");
+                }
+
+                // 4번 테마 시간 비활성화
+                if (nowHour >= theme4part1) {
+                    $("#theme4part1").off("click");
+                    document.querySelector("#theme4part1").removeAttribute('href');
+                    $("#theme4part1").css("background-color", "#D3D3D3");
+                }
+                if (nowHour >= theme4part2) {
+                    $("#theme4part2").off("click");
+                    document.querySelector("#theme4part2").removeAttribute('href');
+                    $("#theme4part2").css("background-color", "#D3D3D3");
+                }
+                if (nowHour >= theme4part3) {
+                    $("#theme4part3").off("click");
+                    document.querySelector("#theme4part3").removeAttribute('href');
+                    $("#theme4part3").css("background-color", "#D3D3D3");
+                }
+            }
+
+
+
+
+            // url:현지 전체 주소 , 문자열로 바꾼 주소 앞에서 한개 잘라오기
+            // http 부터 시작
+            console.log(url);
+            let cafeid = url.slice(42,43);
+            console.log(cafeid);
+
+            $.ajax({
+                url: "/ajax/restimelist",
+                type: "POST",
+                data: {cafeIdx: cafeid},
+                dataType: "json",
+                success: function (data) {
+                    // 해당 카페 예약 데이터 끌고와서 시간은 버튼 값이랑 비교, 같은 시간이 있으면 비활성화
+                    // 주소창이랑 예약 날짜 같은지 확인해야함
+                    console.log("dateParam:"+dateParam);
+
+                    for (let i = 0; i < data.length; i++) {
+                        if (dateParam == data[i].reservationDate) {
+                            console.log("reservationDate:"+data[i].reservationDate);
+                            console.log(data[i].resTime);
+                            // 1번 테마
+                            if (data[i].themeId == 5) {
+                                if (data[i].resTime == theme1part1) {
+                                    $("#theme1part1").off("click");
+                                    document.querySelector("#theme1part1").removeAttribute('href');
+                                    $("#theme1part1").css("background-color", "#D3D3D3");
+                                }
+                                else if (data[i].resTime == theme1part2) {
+                                    $("#theme1part2").off("click");
+                                    document.querySelector("#theme1part2").removeAttribute('href');
+                                    $("#theme1part2").css("background-color", "#D3D3D3");
+                                }
+                                else if (data[i].resTime == theme1part3) {
+                                    $("#theme1part3").off("click");
+                                    document.querySelector("#theme1part3").removeAttribute('href');
+                                    $("#theme1part3").css("background-color", "#D3D3D3");
+                                }
+                            }
+
+                            // 2번 테마
+                            if (data[i].themeId == 6) {
+                                if (data[i].resTime == theme2part1) {
+                                    $("#theme2part1").off("click");
+                                    document.querySelector("#theme2part1").removeAttribute('href');
+                                    $("#theme2part1").css("background-color", "#D3D3D3");
+                                }
+                                if (data[i].resTime == theme2part2) {
+                                    $("#theme2part2").off("click");
+                                    document.querySelector("#theme2part2").removeAttribute('href');
+                                    $("#theme2part2").css("background-color", "#D3D3D3");
+                                }
+                                if (data[i].resTime == theme2part3) {
+                                    $("#theme2part3").off("click");
+                                    document.querySelector("#theme2part3").removeAttribute('href');
+                                    $("#theme2part3").css("background-color", "#D3D3D3");
+                                }
+                            }
+                            // 3번 테마
+                            if (data[i].themeId == 7) {
+                                if (data[i].resTime == theme3part1) {
+                                    $("#theme3part1").off("click");
+                                    document.querySelector("#theme3part1").removeAttribute('href');
+                                    $("#theme3part1").css("background-color", "#D3D3D3");
+                                }
+                                if (data[i].resTime == theme3part2) {
+                                    $("#theme3part2").off("click");
+                                    document.querySelector("#theme3part2").removeAttribute('href');
+                                    $("#theme3part2").css("background-color", "#D3D3D3");
+                                }
+                                if (data[i].resTime == theme3part3) {
+                                    $("#theme3part3").off("click");
+                                    document.querySelector("#theme3part3").removeAttribute('href');
+                                    $("#theme3part3").css("background-color", "#D3D3D3");
+                                }
+                            }
+
+                            // 4번 테마
+                            if (data[i].themeId == 8) {
+                                if (data[i].resTime == theme4part1) {
+                                    $("#theme4part1").off("click");
+                                    document.querySelector("#theme4part1").removeAttribute('href');
+                                    $("#theme4part1").css("background-color", "#D3D3D3");
+                                }
+                                if (data[i].resTime == theme4part2) {
+                                    $("#theme4part2").off("click");
+                                    document.querySelector("#theme4part2").removeAttribute('href');
+                                    $("#theme4part2").css("background-color", "#D3D3D3");
+                                }
+                                if (data[i].resTime == theme4part3) {
+                                    $("#theme4part3").off("click");
+                                    document.querySelector("#theme4part3").removeAttribute('href');
+                                    $("#theme4part3").css("background-color", "#D3D3D3");
+                                }
+                            }
+                        }
+                    }
+                    console.log("통신성공");
+                },
+                error: function () {
+                    alert("통신 중 오류 발생");
+                }
+            });
+
+
+
+            // 버튼 사용시 페이지 이동
+            // $("#part2").click(function() {
+            //    location.href = "/hongdae/1/2/10"
+            // });
+
+
+
+
+
+
+        });
+    </script>
+
+</head>
+
+<body>
+<header th:replace="~{layout/header.html :: header}"></header>
+<br><br><br>
+<div id="container">
+    <div class="container mt-3">
+        <h1 class="text-center mb-5 p-4"><strong>RESERVATION</strong></h1>
+        <div class="row">
+            <div class="col"></div>
+
+            <div class="col-9">
+                <div class="row text-center">
+                    <div class="col border" style="background-color: orange;">
+                        <p class="my-1">예약하기</p>
+                    </div>
+                    <div class="col border">
+                        <p class="my-1">예약정보입력</p>
+                    </div>
+                    <div class="col border">
+                        <p class="my-1">예약완료</p>
+                    </div>
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-md-3" style="background-color: #F5F5F5;" id="all">
+                        <h4 class="text-center mt-5"><strong>LOCATION</strong></h4>
+                        <div class="container">
+                            <div class="row mt-5 location-btn">
+                                <div class="d-flex justify-content-center">
+                                    <a href="/hongdae" id="hongdae" th:href="@{/reservation/hongdae/1}">홍대던전</a>
+                                </div>
+                                <div class="mt-5 d-flex justify-content-center">
+                                    <a style="background-color: orange; color: white;" href="/gangnam" id="gangname" th:href="@{/reservation/gangnam/2}">강남던전</a>
+                                </div>
+                                <div class="mt-5 d-flex justify-content-center">
+                                    <a style="padding-left: 15px; padding-right: 15px;" href="/busanred" id="busanred" th:href="@{/reservation/busanred/6}">서면던전레드(부산)</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class=" col-md-9">
+                        <div class="container">
+                            <div class="row mt-2">
+                                <form name="frm" action="/reservation/gangnam/2" method="get" >
+                                    <div class="col-4 d-flex">
+                                        <input class="form-control me-2" type="date" name="date" id="date" min="" value="">
+                                        <button class="btn btn-outline-primary" type="submit" id="date-select" style="width: 80px;">선택</button>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <div class="row mt-2 h-100">
+                                <!--테마포스터 라인-->
+                                <div class="col-4 h-100">
+                                    <div class="row border d-flex justify-content-center align-items-center" style="height: 250px"
+                                         th:if="${#lists.size(themeList)}>0" th:each="item:${themeList}" >
+                                        <img th:src="@{${item.imgUrl}}" alt="#" class="pt-3" style="width: 185px; height:185px; ">
+                                        <p class="pt-3 text-center gothic-a1-regular" th:text="${item.title}"></p>
+                                    </div>
+                                </div>
+                                <!--타임테이블 라인-->
+
+                                <div class="col-8 h-100">
+                                    <!--1번 테마 시간-->
+                                    <div class="row border timebtn " style="height: 250px">
+                                        <div class="align-content-center">
+                                            <a href="#" id="theme1part1" data-value="10">10:00</a>
+                                            <a href="#" id="theme1part2" data-value="15">15:00</a>
+                                            <a href="#" id="theme1part3" data-value="20">20:00</a>
+                                        </div>
+                                    </div>
+                                    <!--2번 테마 시간-->
+                                    <div class="row border timebtn" style="height: 250px">
+                                        <div class="align-content-center">
+                                            <a href="#" id="theme2part1" data-value="10">10:00</a>
+                                            <a href="#" id="theme2part2" data-value="15">15:00</a>
+                                            <a href="#" id="theme2part3" data-value="20">20:00</a>
+                                        </div>
+                                    </div>
+                                    <!--3번 테마 시간-->
+                                    <div class="row border timebtn" style="height: 250px">
+                                        <div class="align-content-center">
+                                            <a href="#" id="theme3part1" data-value="10">10:00</a>
+                                            <a href="#" id="theme3part2" data-value="15">15:00</a>
+                                            <a href="#" id="theme3part3" data-value="20">20:00</a>
+                                        </div>
+                                    </div>
+                                    <!--4번 테마 시간-->
+                                    <div class="row border timebtn" style="height: 250px">
+                                        <div class="align-content-center">
+                                            <a href="#" id="theme4part1" data-value="10">10:00</a>
+                                            <a href="#" id="theme4part2" data-value="15">15:00</a>
+                                            <a href="#" id="theme4part3" data-value="20">20:00</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-5">
+                    <h3>입장 제한 및 환불불가 안내</h3>
+                    <div>
+                        <ul>
+                            <li><b>1.지각 및 NO SHOW</b>
+                                <P>테마는 시간대 별 예약으로 진행되어, 최소 테마 시작 10분 전 도착하여야 합니다. NO SHOW(불참)의 경우 환불 불가합니다.</P>
+                            </li>
+                            <li><b>2. 과도한 음주자</b>
+                                <p>과도한 음주 후 플레이는 입장이 제한될 수 있습니다.</p>
+                            </li>
+                            <li><b>3. 폐쇄공포증 및 심장 질환자, 임산부</b>
+                                <p>게임 진행 공간은 해당 테마에 맞춰 최대한 리얼리티를 살리도록 설계 되었습니다.</p>
+                                <p>경우에 따라 공간이 폐쇄되어 갇히거나 놀라는 연출이 있을 수 있으므로 관련된 질병이나 신체 장애가 있는 분들은<br> 예약 전 각 매장으로 문의 부탁드립니다.</p>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col"></div>
+        </div>
+    </div>
+</div>
+
+<nav>
+    <a id="quickmenu2" href="#">top</a>
+</nav>
+<footer th:replace="~{/layout/footer :: footer}"></footer>
+</body>
+
+</html>

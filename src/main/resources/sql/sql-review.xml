@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="bitc.fullstack405.team2.review.ReviewMapper">
+
+    <select id="selectReviewList" resultType="bitc.fullstack405.team2.review.ReviewDTO">
+        SELECT
+            c.board_idx, c.comm_title, c.contents, u.nickname AS create_user, c.createAt,
+            c.hit_cnt, t.title AS theme_title, ca.name AS cafe_name
+        FROM
+            communication c
+        LEFT JOIN
+            theme t ON c.comm_theme_idx = t.theme_idx
+        LEFT JOIN
+            cafe ca ON c.cafe_id = ca.cafe_id
+        LEFT JOIN
+            user u ON c.create_user = u.user_id
+        WHERE
+            c.deleted_yn = 'N'
+        ORDER BY
+            c.board_idx DESC
+    </select>
+
+    <!-- review 게시글 조회수 증가 -->
+    <update id="updateHitCount" parameterType = "int">
+        UPDATE
+            communication
+        SET
+            hit_cnt = hit_cnt + 1
+        WHERE
+            board_idx = #{boardIdx}
+    </update>
+
+    <!-- review 게시물 상세, 수정 화면 -->
+    <select id="selectReviewDetail" parameterType="int" resultType="bitc.fullstack405.team2.review.ReviewDTO">
+        SELECT
+            c.board_idx, c.comm_title, c.contents, c.createAt, u.nickname AS create_user,
+            c.hit_cnt, t.title AS theme_title, ca.name AS cafe_name, c.comm_image, c.comm_theme_idx
+        FROM
+            communication c
+        LEFT JOIN
+            theme t ON c.comm_theme_idx = t.theme_idx
+        LEFT JOIN
+            cafe ca ON c.cafe_id = ca.cafe_id
+        LEFT JOIN
+            user u ON c.create_user = u.user_id
+        WHERE
+            c.deleted_yn = 'N'
+        AND
+            c.board_idx = #{boardIdx}
+        ORDER BY
+            c.board_idx DESC
+    </select>
+
+    <!-- review 게시글 등록 -->
+    <insert id="insertReview" parameterType="bitc.fullstack405.team2.review.ReviewDTO">
+        INSERT INTO communication
+            (comm_title, contents, create_user, createAt, cafe_id, comm_image, comm_theme_idx, res_id)
+        VALUES
+            (#{commTitle}, #{contents}, #{createUser}, now(), #{cafeId}, #{commImage}, #{commThemeIdx}, #{resId})
+    </insert>
+
+    <!-- review 게시글 삭제 -->
+    <delete id="deleteReview" parameterType="int">
+        UPDATE
+            communication
+        SET
+            deleted_yn = 'Y', updateAt = now()
+        WHERE
+            board_idx = ${boardIdx}
+    </delete>
+
+<!--    게시글 삭제하면 reservation 테이블의 review_yn도 n으로 바꿔야 함-->
+
+    <!-- review 게시글 수정 -->
+    <update id="updateReview" parameterType="bitc.fullstack405.team2.review.ReviewDTO">
+        UPDATE
+            communication
+        SET
+            comm_title = #{commTitle},
+            cafe_id = #{cafeId},
+            contents = #{contents},
+            updateAt = now(),
+            comm_image = #{commImage},
+            comm_theme_idx = #{commThemeIdx}
+        WHERE
+            board_idx = #{boardIdx}
+    </update>
+</mapper>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="bitc.fullstack405.team2.cafeResrvation.ResMapper">
+    <select id="selectResTime" resultType="bitc.fullstack405.team2.cafeResrvation.ResDTO" parameterType="int">
+        select
+            cafe_id, theme_id, state, res_time, reservation_date
+        from
+            reservation
+        where
+            cafe_id = #{cafeId}
+        and
+            state = 'T'
+    </select>
+
+    <insert id="insertResInfo" parameterType="bitc.fullstack405.team2.cafeResrvation.ResDTO">
+        insert into reservation
+            (res_time, reservation_date, state, cafe_id, createdAt, user_id, theme_id, cafe_name, theme_title, res_payment, res_people, serial_num)
+        value
+            (#{resTime},#{reservationDate},'T', #{cafeId}, now(), #{userId}, #{themeId}, #{cafeName}, #{themeTitle}, #{resPayment}, #{resPeople}, #{serialNum})
+    </insert>
+
+    <select id="selectReservation" resultType="bitc.fullstack405.team2.cafeResrvation.ResDTO" parameterType="int">
+        select
+            cafe_name, theme_title, cafe_id, theme_id, res_id
+        from
+            reservation
+        where
+            res_id = #{resId}
+    </select>
+
+    <update id="updateReviewStatus" parameterType="int">
+        UPDATE
+            reservation
+        SET
+            review_yn = 'Y'
+        WHERE
+            res_id = #{resId}
+    </update>
+</mapper>
